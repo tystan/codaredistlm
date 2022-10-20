@@ -1,0 +1,6 @@
+fig
+
+^.*\.Rproj$
+^\.Rproj\.user$
+^\.Rhistory$
+^change-notes\.md$
