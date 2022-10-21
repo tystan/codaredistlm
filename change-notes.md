@@ -19,3 +19,7 @@
 * additional unit tests
 * remove `compositions` package dependency
 
+# CLR changes (2022-10-21)
+
+* Revising description and readme file, replacing `components´ with `parts´
+
