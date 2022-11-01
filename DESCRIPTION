@@ -2,7 +2,7 @@ Package: codaredistlm
 Type: Package
 Title: Functions to Analyse Compositional Data and Produce Confidence Intervals for Relative Increases and Decreases in the Compositional Parts
 Version: 0.1.0
-Date: 2022-10-20
+Date: 2022-11-01
 Authors@R: c(
     person("Ty", "Stanford", email = "tystan@gmail.com", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-8570-5493")),
     person("Charlotte", "Lund Rasmussen", email = "chinehade@gmail.com", role = "aut", comment = c(ORCID = "0000-0003-2193-5019")),
