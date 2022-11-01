@@ -4,18 +4,18 @@
 # The `codaredistlm` package
 
 
-Functions to analyse compositional data and produce predictions (with confidence intervals) for relative increases and decreases in the compositional components
+Functions to analyse compositional data and produce predictions (with confidence intervals) for relative increases and decreases in the compositional parts.
 
 
 
 ## 1. Background
 
-For an outcome variable `Y`, *D* compositional variables (`x_1, ..., x_D`) and *C* covariates (`z_1, ..., z_C`); this package fits the compositional data analysis model (notation inexact):
+For an outcome variable `Y`, *D* compositional parts (`x_1, ..., x_D`) and *C* covariates (`z_1, ..., z_C`); this package fits the compositional data analysis model (notation inexact):
 
 
 `Y = b_0 + b_1 ilr_1 + ... + b_{D-1} ilr_{D-1} + a_1 z_1 + ... + a_C z_C + e`
 
-where `ilr_i` are the *D-1* isometric log ratio variables derived from the *D* compositional variables (`x_1, ..., x_D`), `b_0, ...,  b_{D-1}, a_1, ..., a_C` are *D+C* parameters to be estimated and `e ~ N(0, sigma)` is the error. The package then makes predictions in alterations of the time-use variables (the linearly dependent set of compositional components) based on this model. 
+where `ilr_i` are the *D-1* isometric log ratio variables derived from the *D* compositional parts (`x_1, ..., x_D`), `b_0, ...,  b_{D-1}, a_1, ..., a_C` are *D+C* parameters to be estimated and `e ~ N(0, sigma)` is the error. The package then makes predictions in alterations of the time-use variables (the linearly dependent set of compositional parts) based on this model. 
 
 
 For a starting point to learn about compositional data analysis please see [Aitchison (1982)](https://doi.org/10.1111/j.2517-6161.1982.tb01195.x) or [van den Boogaart and Tolosana-Delgado (2013)](https://link.springer.com/book/10.1007/978-3-642-36809-7). However the articles [Dumuid et al. (2017a)](https://doi.org/10.1177/0962280217710835) and [Dumuid et al. (2017b)](https://doi.org/10.1177/0962280217737805) may be more approachable introductions.
@@ -27,17 +27,17 @@ Please note that the use of 'mean composition' means the geometric mean on the c
 
 ### 2.1. Option `comparisons = "prop-realloc"` 
 
-Information on outcome prediction with time-use exchange between one component and the remaining compositional components proportionally (`comparisons = "prop-realloc"` option of the `predict_delta_comps()` function), please see [Dumuid et al. (2017a)](https://doi.org/10.1177/0962280217710835).
+Information on outcome prediction with time-use exchange between one part and the remaining compositional parts proportionally (`comparisons = "prop-realloc"` option of the `predict_delta_comps()` function), please see [Dumuid et al. (2017a)](https://doi.org/10.1177/0962280217710835).
 
 ### 2.1.1. Example
 
-Suppose you have three (predictor) components in a day summing to 1 (e.g., a day) to predict an outcome variable. The three components are `sedentary`, `sleep`  and `activity`. Let's assume the mean sampled composition is:
+Suppose you have three (predictor) parts in a day summing to 1 (e.g., a day) to predict an outcome variable. The three parts are `sedentary`, `sleep`  and `activity`. Let's assume the mean sampled composition is:
 
 * `sedentary = 0.5` (i.e., half a day)
 * `sleep = 0.3`  (i.e., 30% a day)
 * `activity = 0.2` (i.e., 20% a day)
 
-If you wanted to predict the change in the outcome variable from the above mean composition with `delta = +0.05` (5% of the day) is added to `sedentary`, the option `comparisons = "prop-realloc"` reduces the remaining components by the 5% proportionately based on their mean values, illustrated below:
+If you wanted to predict the change in the outcome variable from the above mean composition with `delta = +0.05` (5% of the day) is added to `sedentary`, the option `comparisons = "prop-realloc"` reduces the remaining parts by the 5% proportionately based on their mean values, illustrated below:
 
 * `sedentary* = 0.5 + delta = 0.5 + 0.05 = 0.55`
 * `sleep* = 0.3 - delta * sleep / (sleep + activity) = 0.3 - 0.05 * 0.3 / (0.3 + 0.2) = 0.3 - 0.03 = 0.27`
@@ -45,22 +45,22 @@ If you wanted to predict the change in the outcome variable from the above mean 
 
 Noting that the new compsition: `sedentary* + sleep* + activity* = 0.55 + 0.27 + 0.18 = 1`.
 
-Note for the example above, the option `comparisons = "prop-realloc"` in `predict_delta_comps()` will actually automatically produce seperate predictions for a `delta = +0.05` on each of the components against the remaining components. i.e., not only the `sedentary* = 0.5 + delta` scenario as illustrated above but also `sleep* = 0.3 + delta` and `activity* = 0.2 + delta` cases.
+Note for the example above, the option `comparisons = "prop-realloc"` in `predict_delta_comps()` will actually automatically produce separate predictions for a `delta = +0.05` on each of the parts against the remaining parts. i.e., not only the `sedentary* = 0.5 + delta` scenario as illustrated above but also `sleep* = 0.3 + delta` and `activity* = 0.2 + delta` cases.
 
 ### 2.2. Option `comparisons = "one-v-one"` 
 
-For information on outcome prediction with time-use exchange between two compositional components (i.e., the `comparisons = "one-v-one"` option of the `predict_delta_comps()` function), please see
+For information on outcome prediction with time-use exchange between two compositional parts (i.e., the `comparisons = "one-v-one"` option of the `predict_delta_comps()` function), please see
 [Dumuid et al. (2017b)](https://doi.org/10.1177/0962280217737805).
 
 ### 2.2.1. Example
 
-Similarily to the previous example, suppose you have three (predictor) components in a day summing to 1 (i.e. a day) to predict an outcome variable. The three components are `sedentary`, `sleep`  and `activity`. Let's assume the mean sampled composition is:
+Similarly to the previous example, suppose you have three (predictor) parts in a day summing to 1 (i.e. a day) to predict an outcome variable. The three parts are `sedentary`, `sleep`  and `activity`. Let's assume the mean sampled composition is:
 
 * `sedentary = 0.5` (i.e., half a day)
 * `sleep = 0.3`  (i.e., 30% a day)
 * `activity = 0.2` (i.e., 20% a day)
 
-If you wanted to predict the change in the outcome variable from the above mean composition with `delta = +0.05` (5% of the day), the option `comparisons = "one-v-one"` looks at all pairwise exchanges between the components `(sedentary*, sleep*, activity*)`:
+If you wanted to predict the change in the outcome variable from the above mean composition with `delta = +0.05` (5% of the day), the option `comparisons = "one-v-one"` looks at all pairwise exchanges between the parts `(sedentary*, sleep*, activity*)`:
 
 * `(0.5 + 0.05, 0.3 - 0.05, 0.2       )`
 * `(0.5 + 0.05, 0.3       , 0.2 - 0.05)`
