@@ -2,10 +2,10 @@
 # Change notes
 
 
-## Version 0.1.0 (2022-10-20)
+## Version 0.1.0 (2022-11-01)
 
 * migration of `deltacomp` package to `codaredistlm` for CRAN submission
-
+* replacing "compositional components" with the more correct "compositional parts" in methods description
 
 ## Prior versions
 
@@ -19,7 +19,5 @@
 * additional unit tests
 * remove `compositions` package dependency
 
-# CLR changes (2022-10-21)
 
-* Revising description and readme file, replacing `components´ with `parts´
 
