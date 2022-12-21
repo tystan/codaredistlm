@@ -11,7 +11,7 @@ print_ilr_trans(comps)
 }
 \value{
 a character vector of representing the ilr transformation of the \code{comps}
-is returned invisibly as the function's purpose is simply to 
+is returned invisibly as the function's purpose is simply to
 print to the R console
 }
 \description{

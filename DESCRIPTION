@@ -1,13 +1,13 @@
 Package: codaredistlm
 Type: Package
-Title: Functions to Analyse Compositional Data and Produce Confidence Intervals for Relative Increases and Decreases in the Compositional Parts
+Title: Compositional Data Linear Models with Composition Redistribution
 Version: 0.1.0
-Date: 2022-11-01
+Date: 2022-12-22
 Authors@R: c(
     person("Ty", "Stanford", email = "tystan@gmail.com", role = c("aut", "cre"), comment = c(ORCID = "0000-0002-8570-5493")),
     person("Charlotte", "Lund Rasmussen", email = "chinehade@gmail.com", role = "aut", comment = c(ORCID = "0000-0003-2193-5019")),
     person("Dot", "Dumuid", email = "dot.dumuid@unisa.edu.au", role = "aut", comment = c(ORCID = "0000-0003-3057-0963")))
-Description: Provided data containing an outcome variable, compositional variables and additional covariates (optional); regress the outcome variable on an isometric log ratio (ilr) transformation of the linearly dependent compositional variables. The package provides predictions (with confidence intervals) in the change (delta) in the outcome/response variable based on the multiple linear regression model and evenly spaced reallocations of the compositional values.
+Description: Provided data containing an outcome variable, compositional variables and additional covariates (optional); linearly regress the outcome variable on an isometric log ratio (ilr) transformation of the linearly dependent compositional variables. The package provides predictions (with confidence intervals) in the change (delta) in the outcome/response variable based on the multiple linear regression model and evenly spaced reallocations of the compositional values. The compositional data analysis approach implemented is outlined in Dumuid et al. (2017a) <doi:10.1177/0962280217710835> and Dumuid et al. (2017b) <doi:10.1177/0962280217737805>.
 License: GPL-2
 URL: https://github.com/tystan/codaredistlm
 BugReports: https://github.com/tystan/codaredistlm/issues
@@ -15,6 +15,8 @@ Encoding: UTF-8
 LazyData: true
 Imports: 
     compositions,
-    ggplot2
+    ggplot2,
+    broom,
+    knitr
 Suggests: testthat
 RoxygenNote: 7.1.2

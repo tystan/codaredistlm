@@ -6,19 +6,49 @@
 #' @param y Name (as string/character vector of length 1) of outcome variable in \code{dataf}
 #' @param comps Character vector of names of compositions in \code{dataf}. See details for more information.
 #' @param covars Optional. Character vector of covariates names  (non-comp variables) in \code{dataf}. Defaults to NULL.
-#' @param deltas A vector of time-component changes (as proportions of compositions , i.e., values between -1 and 1). Optional. 
-#' Changes in compositions to be computed pairwise. Defaults to 0, 10 and 20 minutes as a proportion of the 1440 minutes 
+#' @param deltas A vector of time-component changes (as proportions of compositions , i.e., values between -1 and 1). Optional.
+#' Changes in compositions to be computed pairwise. Defaults to 0, 10 and 20 minutes as a proportion of the 1440 minutes
 #' in a day (i.e., approximately \code{0.000}, \code{0.007} and \code{0.014}).
-#' @param comparisons Currently two choices:  \code{"one-v-one"} or  \code{"prop-realloc"} (default). Please see details for explanation of these methods.
+#' @param comparisons Currently two choices:  \code{"one-v-one"} or \code{"prop-realloc"} (default). Please see details for explanation of these methods.
 #' @param alpha Optional. Level of significance. Defaults to 0.05.
 #' @export
-#' @details 
-#' Values in the \code{comps} columns must be strictly greater than zero. These compositional values are NOT assumed to be constrained to (0, 1) 
+#' @details
+#' Values in the \code{comps} columns must be strictly greater than zero. These compositional values are NOT assumed to be constrained to (0, 1)
 #' values as the function normalises the compositions row-wise to sum to 1 in part of it's processing of the dataset before analysis.
-#' 
-#' Please see the \code{deltacomp} package \code{README.md} file for examples and explanation of the \code{comparisons = "prop-realloc"} and \code{comparisons = "one-v-one"} options. 
-#' 
-#' Note from version 0.1.0 to current version, \code{comparisons == "one-v-all"} is depreciated, \code{comparisons == "prop-realloc"} is probably the alternative you are after.
+#'
+#' Please see the \code{deltacomp} package \code{README.md} file for examples and explanation of the \code{comparisons = "prop-realloc"} and \code{comparisons = "one-v-one"} options.
+#'
+#' @returns
+#'
+#' Messages are printed to the console as the function tests the inputs, produces the isometric log ratios (ilrs), fits the linear model and produces the redistributed time-use predictions (with confidence intervals).
+#'
+#' Returns a \code{data.frame} of the time-use redistribution predictions (and 95\% confidence intervals) with the following columns:
+#' \itemize{
+#'   \item  \code{comp+}: the compositional variable with the addition of the \code{delta} value
+#'   \item  \code{comp-}: the compositional variable with the subtraction of the \code{delta} value
+#'   \item  \code{delta}: the time-use redistribution value
+#'   \item  \code{alpha}: significance level for the 100(1-alpha)\% confidence interval
+#'   \item  \code{delta_pred}: the predicted mean change in the outcome variable
+#'   \item  \code{ci_lo}: the lower limit of 100(1-alpha)\% confidence interval corresponding to \code{delta_pred}
+#'   \item  \code{ci_up}: the upper limit of 100(1-alpha)\% confidence interval corresponding to \code{delta_pred}
+#'   \item  \code{sig}: \code{"*"} if the \code{delta_pred} is significantly different from 0 at the \code{alpha} level (empty string otherwise)
+#' }
+#'
+#' The data.frame has a class of \code{deltacomp_obj} which denotes there are additional attributes of the returned object accessible using \code{attr(*, "attribute_name")}.
+#'
+#' The possible values for \code{"attribute_name"} are:
+#' \itemize{
+#'   \item  \code{dataf}: a data.frame of the predictors (covariates and ilrs)
+#'   \item  \code{y}: a vector of the outcome variable
+#'   \item  \code{comps}: a character vector of the time-use composition names
+#'   \item  \code{lm}: the \code{lm} object of the multiple linear regression fit (using \code{y} and \code{dataf} from above)
+#'   \item  \code{deltas}: the redistributed time-use values used in the predictions
+#'   \item  \code{comparisons}:  \code{"one-v-one"} or  \code{"prop-realloc"} provided as the \code{comparisons} argument
+#'   \item  \code{alpha}: significance level for the 100(1-alpha)\% confidence intervals
+#'   \item  \code{ilr_basis}: the ilr change of basis matrix \code{V}
+#'   \item  \code{mean_pred}: a single row data.frame with the predicted mean outcome (\code{fit} column) value from the "average" set of predictors
+#' }
+#'
 #' @examples
 #' predict_delta_comps(
 #'   dataf = fat_data,
@@ -30,16 +60,18 @@
 #'   alpha = 0.05
 #' )
 #'
-
-#' predict_delta_comps(
+#' delta_comp_out <- predict_delta_comps(
 #'   dataf = fat_data,
 #'   y = "fat",
 #'   comps = c("sl", "sb", "lpa", "mvpa"),
 #'   covars = NULL,
 #'   deltas = seq(-60, 60, by = 5) / (24 * 60),
-#'   comparisons = "one-v-one",
+#'   comparisons = "prop-realloc",
 #'   alpha = 0.05
 #' )
+#'
+#' # get the mean prediction from the returned object
+#' attr(delta_comp_out, "mean_pred")
 #'
 
 predict_delta_comps <- function(
@@ -61,34 +93,34 @@ predict_delta_comps <- function(
   # in case the data are much smaller after removing NAs
   check_input_args(dataf, y, comps, covars, deltas)
   check_strictly_positive_vals(dataf, comps)
-  comparisons <- get_comp_type(comparisons) 
-    
+  comparisons <- get_comp_type(comparisons)
+
   # set up function constants
   n <- nrow(dataf)
   n_comp <- length(comps)
   n_delta <- length(deltas)
   n_covar <- ifelse(is_null_or_na(covars), 0, length(covars))
-  
+
   # standardise comps
   dataf <- standardise_comps(dataf, comps)
-  
+
   # get the mean of the compositions on the geometric scale
-  mean_comps <- 
+  mean_comps <-
     compositions::mean.acomp(
       compositions::acomp(
         dataf[, comps]
-      ), 
+      ),
       robust = FALSE
     )
-  
+
   if(!all.equal(1, sum(mean_comps), tolerance = 1e-5))
     stop("Calculated mean composition does not sum to 1")
-  
+
   #### As covariates are fit linearly and are constant within prediction, they cancel out
   # (i.e., we don't compare age=10 vs age=15, keeping everything else constant
   # as we read that off the coefficients table)
-  ### However, we may be interested in the prediction for the mean value of compositions 
-  ### and covariates 
+  ### However, we may be interested in the prediction for the mean value of compositions
+  ### and covariates
   m_cov <- NULL
   mean_X <- as.data.frame(t(mean_comps))
   if (n_covar > 0) {
@@ -103,37 +135,37 @@ predict_delta_comps <- function(
   psi <- create_v_mat(n_comp)
   ### previously:
   # sbp <- create_seq_bin_part(n_comp); psi <- compositions::gsi.buildilrBase(sbp)
-  
+
   # add ilr coords to dataset
   dataf <- append_ilr_coords(dataf, comps, psi)
   mean_X <- append_ilr_coords(mean_X, comps, psi)
   # print(tibble::as_tibble(mean_X))
   print_ilr_trans(comps) # print to console the ilr transformation for the user
-  
+
   # create dataset X only consisting of outcome, ilr coords and covars
   ilr_names <- paste0("ilr", 1:(n_comp - 1))
-  # X <- dataf[, colnames(dataf) %in% c(y, ilr_names, covars)] 
-  X <- dataf[, c(y, ilr_names, covars)] # force order 
+  # X <- dataf[, colnames(dataf) %in% c(y, ilr_names, covars)]
+  X <- dataf[, c(y, ilr_names, covars)] # force order
   # fit model
   lm_X <- fit_lm(y, X)
-  
+
   # ANOVA of whether compositional variables are statistically significant collectively
-  # note drop = FALSE in case no covariates and 
+  # note drop = FALSE in case no covariates and
   # stop one column from data.frame becoming vector
   compare_two_lm(y, X[, c(y, covars), drop = FALSE], X[, c(y, covars, ilr_names)])
-  
-  
+
+
   mean_pred <- get_mean_pred(lm_X, mean_X, alpha = alpha)
   # extract linear model quantities required for further calculations
   lm_quants <- extract_lm_quantities(lm_X, alpha = alpha)
-  
+
   delta_mat <- get_delta_mat(deltas, comparisons, comps, mean_comps)
   n_preds <- nrow(delta_mat)
   poss_comps <- get_all_comparison_mat(deltas, comparisons, comps, mean_comps)
-  
+
   m_comps <- matrix(rep(mean_comps, n_preds), nrow = n_preds, byrow = TRUE)
   m_delta <- m_comps + delta_mat
-  
+
   m_delta_less_0 <- rowSums(m_delta < 0)
   if(any(m_delta_less_0 > 0)) {
     warning(
@@ -144,29 +176,29 @@ predict_delta_comps <- function(
       )
     )
   }
-  
+
   if(!all.equal(rep(1, n_preds), rowSums(m_delta), tolerance = 1e-5)) {
     stop("Calculated mean composition does not sum to 1")
   }
-  
+
   ilr_means <- compositions::ilr(m_comps, V = psi)
   ilr_delta <- compositions::ilr(m_delta, V = psi)
-  
+
   # get rid of "rmult" class, revert to "matrix", to allow for easier matrix manipulation
-  attr(ilr_delta, "class") <- NULL 
-  attr(ilr_means, "class") <- NULL 
-  
+  attr(ilr_delta, "class") <- NULL
+  attr(ilr_means, "class") <- NULL
+
   x0_star <- get_x0_star(lm_quants$dmX, n_preds, ilr_names, ilr_delta, ilr_means)
   y0_star <- x0_star %*% lm_quants$beta_hat
   se_y0_star <- get_se_y0_star(x0_star, lm_quants$s_e, lm_quants$XtX_inv)
-  
-  
+
+
   # get labels and deltas for reallocations
-  realloc_nms <- get_realloc_nms(comps, comparisons, poss_comps) 
+  realloc_nms <- get_realloc_nms(comps, comparisons, poss_comps)
   delta_list <- get_pred_deltas(delta_mat, realloc_nms)
-  
-  
-  preds <- 
+
+
+  preds <-
     cbind(
       as.data.frame(realloc_nms, stringsAsFactors = FALSE),
       delta_list,
@@ -175,12 +207,12 @@ predict_delta_comps <- function(
       get_pred_bounds(y0_star, lm_quants$crit_val, se_y0_star, bound = -1),
       get_pred_bounds(y0_star, lm_quants$crit_val, se_y0_star, bound =  1)
     )
-  
+
   colnames(preds) <-
     c("comp+", "comp-", "delta", "alpha", "delta_pred", "ci_lo", "ci_up")
-  
+
   preds$sig <- ifelse(preds$ci_lo <= 0 & preds$ci_up >= 0, "", "*")
-  
+
   # data.frame to return
   ret_obj <- preds
   class(ret_obj) <- c(class(preds), "deltacomp_obj")
@@ -189,13 +221,13 @@ predict_delta_comps <- function(
   attr(ret_obj, "y") <- y
   attr(ret_obj, "comps") <- comps
   attr(ret_obj, "covars") <- covars
-  attr(ret_obj, "lm") <- lm_X 
+  attr(ret_obj, "lm") <- lm_X
   attr(ret_obj, "deltas") <- deltas
   attr(ret_obj, "comparisons") <- comparisons
   attr(ret_obj, "alpha") <- alpha
   attr(ret_obj, "ilr_basis") <- psi
   attr(ret_obj, "mean_pred") <- mean_pred
-  
+
   return(ret_obj)
 
 }

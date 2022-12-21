@@ -1,18 +1,18 @@
 
 #' Statistical test of the collective significance of the ilr variables
 #'
-#' @param y_str a string representation of the column in \code{X1} (and \code{X2}) 
+#' @param y_str a string representation of the column in \code{X1} (and \code{X2})
 #' that is the outcome
-#' @param X1 a data.frame or matrix that contains a subset of the predictor variables 
+#' @param X1 a data.frame or matrix that contains a subset of the predictor variables
 #' in \code{X2} and outcome variable
-#' @param X2 a data.frame or matrix that contains the predictor variables and outcome 
+#' @param X2 a data.frame or matrix that contains the predictor variables and outcome
 #' variable
 #'
-#' @return 
+#' @return
 #' Returns \code{NULL} invisibly. The ANOVA analysis is printed to the console, that is,
-#' the statistical test of whether the additional predictors in \code{X2} improve the 
+#' the statistical test of whether the additional predictors in \code{X2} improve the
 #' model significantly from the model with only the subset of predictors in \code{X1}.
-#' 
+#'
 #' @export
 #'
 # @examples
@@ -53,28 +53,28 @@
 # )
 
 compare_two_lm <- function(y_str, X1, X2) {
-  
+
   x1_nms <- colnames(X1)
   x2_nms <- colnames(X2)
-  
+
   if (!all(x1_nms %in% x2_nms)) {
     stop("X1 data is not a subset of X2 data, check all columns in X1 exist in X2")
   }
-  
+
   superset_vars <- x2_nms[!(x2_nms %in% x1_nms)]
   if (length(superset_vars) < 1) {
     stop("X2 data is not a superset of the columns in X1")
   }
   superset_str <- paste(superset_vars, collapse = ", ")
-  
-  lm_X1 <- fit_lm(y_str, X1, verbose = FALSE)
-  lm_X2 <- fit_lm(y_str, X2, verbose = FALSE)    
 
-  cat("---\nStatistical test of the collective significance of the variables ")
-  cat(paste0("{", superset_str, "}:"), "\n---\n")
-  print(anova(lm_X1, lm_X2))
-  cat("---\n\n")
-  
+  lm_X1 <- fit_lm(y_str, X1, verbose = FALSE)
+  lm_X2 <- fit_lm(y_str, X2, verbose = FALSE)
+
+  # message("---\nStatistical test of the collective significance of the variables ")
+  # message(paste0("{", superset_str, "}:"), "\n---\n")
+  # message(paste(kable(tidy(anova(lm_X1, lm_X2))), collapse = "\n"))
+  # message("---\n\n")
+
   return(invisible(NULL))
- 
+
 }

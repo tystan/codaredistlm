@@ -7,18 +7,18 @@
 compare_two_lm(y_str, X1, X2)
 }
 \arguments{
-\item{y_str}{a string representation of the column in \code{X1} (and \code{X2}) 
+\item{y_str}{a string representation of the column in \code{X1} (and \code{X2})
 that is the outcome}
 
-\item{X1}{a data.frame or matrix that contains a subset of the predictor variables 
+\item{X1}{a data.frame or matrix that contains a subset of the predictor variables
 in \code{X2} and outcome variable}
 
-\item{X2}{a data.frame or matrix that contains the predictor variables and outcome 
+\item{X2}{a data.frame or matrix that contains the predictor variables and outcome
 variable}
 }
 \value{
 Returns \code{NULL} invisibly. The ANOVA analysis is printed to the console, that is,
-the statistical test of whether the additional predictors in \code{X2} improve the 
+the statistical test of whether the additional predictors in \code{X2} improve the
 model significantly from the model with only the subset of predictors in \code{X1}.
 }
 \description{

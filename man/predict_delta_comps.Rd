@@ -23,24 +23,52 @@ predict_delta_comps(
 
 \item{covars}{Optional. Character vector of covariates names  (non-comp variables) in \code{dataf}. Defaults to NULL.}
 
-\item{deltas}{A vector of time-component changes (as proportions of compositions , i.e., values between -1 and 1). Optional. 
-Changes in compositions to be computed pairwise. Defaults to 0, 10 and 20 minutes as a proportion of the 1440 minutes 
+\item{deltas}{A vector of time-component changes (as proportions of compositions , i.e., values between -1 and 1). Optional.
+Changes in compositions to be computed pairwise. Defaults to 0, 10 and 20 minutes as a proportion of the 1440 minutes
 in a day (i.e., approximately \code{0.000}, \code{0.007} and \code{0.014}).}
 
-\item{comparisons}{Currently two choices:  \code{"one-v-one"} or  \code{"prop-realloc"} (default). Please see details for explanation of these methods.}
+\item{comparisons}{Currently two choices:  \code{"one-v-one"} or \code{"prop-realloc"} (default). Please see details for explanation of these methods.}
 
 \item{alpha}{Optional. Level of significance. Defaults to 0.05.}
+}
+\value{
+Messages are printed to the console as the function tests the inputs, produces the isometric log ratios (ilrs), fits the linear model and produces the redistributed time-use predictions (with confidence intervals).
+
+Returns a \code{data.frame} of the time-use redistribution predictions (and 95\% confidence intervals) with the following columns:
+\itemize{
+  \item  \code{comp+}: the compositional variable with the addition of the \code{delta} value
+  \item  \code{comp-}: the compositional variable with the subtraction of the \code{delta} value
+  \item  \code{delta}: the time-use redistribution value
+  \item  \code{alpha}: significance level for the 100(1-alpha)\% confidence interval
+  \item  \code{delta_pred}: the predicted mean change in the outcome variable
+  \item  \code{ci_lo}: the lower limit of 100(1-alpha)\% confidence interval corresponding to \code{delta_pred}
+  \item  \code{ci_up}: the upper limit of 100(1-alpha)\% confidence interval corresponding to \code{delta_pred}
+  \item  \code{sig}: \code{"*"} if the \code{delta_pred} is significantly different from 0 at the \code{alpha} level (empty string otherwise)
+}
+
+The data.frame has a class of \code{deltacomp_obj} which denotes there are additional attributes of the returned object accessible using \code{attr(*, "attribute_name")}.
+
+The possible values for \code{"attribute_name"} are:
+\itemize{
+  \item  \code{dataf}: a data.frame of the predictors (covariates and ilrs)
+  \item  \code{y}: a vector of the outcome variable
+  \item  \code{comps}: a character vector of the time-use composition names
+  \item  \code{lm}: the \code{lm} object of the multiple linear regression fit (using \code{y} and \code{dataf} from above)
+  \item  \code{deltas}: the redistributed time-use values used in the predictions
+  \item  \code{comparisons}:  \code{"one-v-one"} or  \code{"prop-realloc"} provided as the \code{comparisons} argument
+  \item  \code{alpha}: significance level for the 100(1-alpha)\% confidence intervals
+  \item  \code{ilr_basis}: the ilr change of basis matrix \code{V}
+  \item  \code{mean_pred}: a single row data.frame with the predicted mean outcome (\code{fit} column) value from the "average" set of predictors
+}
 }
 \description{
 Provided the data (containing outcome, compositional components and covariates), fit a ilr multiple linear regression model and provide predictions from reallocating compositional values pairwise amunsnst the components model.
 }
 \details{
-Values in the \code{comps} columns must be strictly greater than zero. These compositional values are NOT assumed to be constrained to (0, 1) 
+Values in the \code{comps} columns must be strictly greater than zero. These compositional values are NOT assumed to be constrained to (0, 1)
 values as the function normalises the compositions row-wise to sum to 1 in part of it's processing of the dataset before analysis.
 
-Please see the \code{deltacomp} package \code{README.md} file for examples and explanation of the \code{comparisons = "prop-realloc"} and \code{comparisons = "one-v-one"} options. 
-
-Note from version 0.1.0 to current version, \code{comparisons == "one-v-all"} is depreciated, \code{comparisons == "prop-realloc"} is probably the alternative you are after.
+Please see the \code{deltacomp} package \code{README.md} file for examples and explanation of the \code{comparisons = "prop-realloc"} and \code{comparisons = "one-v-one"} options.
 }
 \examples{
 predict_delta_comps(
@@ -53,15 +81,18 @@ predict_delta_comps(
   alpha = 0.05
 )
 
-predict_delta_comps(
+delta_comp_out <- predict_delta_comps(
   dataf = fat_data,
   y = "fat",
   comps = c("sl", "sb", "lpa", "mvpa"),
   covars = NULL,
   deltas = seq(-60, 60, by = 5) / (24 * 60),
-  comparisons = "one-v-one",
+  comparisons = "prop-realloc",
   alpha = 0.05
 )
+
+# get the mean prediction from the returned object
+attr(delta_comp_out, "mean_pred")
 
 }
 \author{

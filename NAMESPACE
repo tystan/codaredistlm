@@ -7,3 +7,5 @@ importFrom("stats", "predict.lm", "as.formula", "coefficients", "df.residual", "
 importFrom("utils", "head")
 importFrom("compositions", "gsi.buildilrBase", "ilr")
 import("ggplot2")
+importFrom("knitr", "kable")
+importFrom("broom", "tidy")

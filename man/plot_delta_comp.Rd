@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot_delta_comp.R
 \name{plot_delta_comp}
 \alias{plot_delta_comp}
-\title{Get predictions from compositional ilr multiple linear regression model}
+\title{Plot redistributed time-use predictions from compositional ilr multiple linear regression model fit}
 \usage{
 plot_delta_comp(dc_obj, comp_total = NULL, units_lab = NULL)
 }
@@ -13,8 +13,11 @@ plot_delta_comp(dc_obj, comp_total = NULL, units_lab = NULL)
 
 \item{units_lab}{Character string of the units of the compositions relating to \code{comp_total} to add to the x-axis label}
 }
+\value{
+Returns a plot object from the \code{ggplot2} package (that is, class of \code{gg} and \code{ggplot}).
+}
 \description{
-Provided the data (containing outcome, composiitional compoents and covariates), fit a ilr multiple linear regression model and provide predictions from reallocating compositional values pairwise amunsnst the components model.
+Plot redistributed time-use predictions from compositional ilr multiple linear regression model fit by \code{predict_delta_comps()}
 }
 \examples{
 data(fairclough)
@@ -25,7 +28,7 @@ deltacomp_df <-
     y = "z_bmi",
     comps = c("sleep","sed","lpa","mvpa"),
     covars = c("decimal_age","sex"),
-    deltas =  seq(-20, 20, by = 5) / (24 * 60), 
+    deltas =  seq(-20, 20, by = 5) / (24 * 60),
     comparisons = "prop-realloc",
     alpha = 0.05
   )
@@ -43,7 +46,7 @@ deltacomp_df <-
     y = "z_bmi",
     comps = c("sleep","sed","lpa","mvpa"),
     covars = c("decimal_age","sex"),
-    deltas =  seq(-20, 20, by = 5) / (24 * 60), 
+    deltas =  seq(-20, 20, by = 5) / (24 * 60),
     comparisons = "one-v-one",
     alpha = 0.05
   )
